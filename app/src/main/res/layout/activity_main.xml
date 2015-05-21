@@ -26,4 +26,12 @@
         android:layout_above="@+id/wifiTextView"
         android:layout_centerHorizontal="true"
         android:textSize="30sp"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Get new WiFi"
+        android:id="@+id/getWifiButton"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

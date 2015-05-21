@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class MainActivity extends ActionBarActivity {
     public TextView mWifiTextView;
     public WifiManager mWifiManager;
     public WifiScanReceiver mWifiReceiver;
+    public Button mGetNewWifiButton;
 
 
     @Override
@@ -27,11 +29,34 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mWifiTextView = (TextView) findViewById(R.id.wifiTextView);
-
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiReceiver = new WifiScanReceiver();
         registerReceiver(mWifiReceiver, new IntentFilter(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        mGetNewWifiButton = (Button) findViewById(R.id.getWifiButton);
+        mGetNewWifiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, GetWifiActivity.class);
+                startActivity(intent);
+            }
+        });
+
         mWifiManager.startScan();
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        unregisterReceiver(mWifiReceiver);
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        registerReceiver(mWifiReceiver, new IntentFilter(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
     }
     class WifiScanReceiver extends BroadcastReceiver {
@@ -41,7 +66,7 @@ public class MainActivity extends ActionBarActivity {
             mScanResultList = mWifiManager.getScanResults();
 
             for (int i =0; i < mScanResultList.size(); i++) {
-                Log.d("NEtwork name is :" + mScanResultList.get (i).SSID.toString().toLowerCase()+" :", mScanResultList.get (i).BSSID.toString().toLowerCase());
+                Log.d("Network name is :" + mScanResultList.get (i).SSID.toString().toLowerCase()+" :", mScanResultList.get (i).BSSID.toString().toLowerCase());
 
                 if (mScanResultList.get (i).BSSID.toString().toLowerCase().contains("00:62:2c:72:9c:f4")){
                     mWifiTextView.setText("George Home");
@@ -61,11 +86,6 @@ public class MainActivity extends ActionBarActivity {
                 }
 
 
-            }
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                Log.e (e.toString(), e.getMessage());
             }
             mWifiManager.startScan();
 
