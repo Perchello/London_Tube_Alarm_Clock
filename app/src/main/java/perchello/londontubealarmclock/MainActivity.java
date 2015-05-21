@@ -43,13 +43,21 @@ public class MainActivity extends ActionBarActivity {
             for (int i =0; i < mScanResultList.size(); i++) {
                 Log.d("NEtwork name is :" + mScanResultList.get (i).SSID.toString().toLowerCase()+" :", mScanResultList.get (i).BSSID.toString().toLowerCase());
 
-                if (mScanResultList.get (i).BSSID.toString().toLowerCase().equals("00:62:2c:72:9c:f4")){
-                    mWifiTextView.setVisibility(View.VISIBLE);
+                if (mScanResultList.get (i).BSSID.toString().toLowerCase().contains("00:62:2c:72:9c:f4")){
+                    mWifiTextView.setText("George Home");
                     i = mScanResultList.size();
                 }
-                if (i==(mScanResultList.size()-1) ) {
-                    mWifiTextView.setVisibility(View.INVISIBLE);
-
+                else if (mScanResultList.get (i).BSSID.toString().toLowerCase().contains("c8:bc:c8:fd:9d:95")) {
+                    mWifiTextView.setText("Rudenko Office");
+                    i = mScanResultList.size();
+                }
+                else if (mScanResultList.get (i).BSSID.toString().toLowerCase().contains("c8:f9:f9:2a:84:0d") || mScanResultList.get (i).BSSID.toString().toLowerCase().contains("c8:f9:f9:2a:84:02") || mScanResultList.get (i).BSSID.toString().toLowerCase().contains("3c:ce:73:f8:88:4d")) {
+                    mWifiTextView.setText("Archway");
+                    i = mScanResultList.size();
+                }
+                else if (mScanResultList.get (i).BSSID.toString().toLowerCase().contains("a4:56:30:cc:97:fd") || mScanResultList.get (i).BSSID.toString().toLowerCase().contains("a4:56:30:cc:97:f2") || mScanResultList.get (i).BSSID.toString().toLowerCase().contains("3c:ce:73:f8:90:9d")) {
+                    mWifiTextView.setText("Highgate");
+                    i = mScanResultList.size();
                 }
 
 
