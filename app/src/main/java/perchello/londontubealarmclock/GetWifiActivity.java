@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
@@ -49,6 +52,7 @@ public class GetWifiActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 if (mStationEditText.getText().length() != 0) {
+                    mGetNewWifiButton.setVisibility(View.INVISIBLE);
                     Log.d("Passed click: ", "yes");
                     mStationName = mStationEditText.getText().toString();
                     mWifiManager.startScan();
@@ -84,7 +88,10 @@ public class GetWifiActivity extends ActionBarActivity {
             writer.flush();
 
                 writer.close();
+                mGetNewWifiButton.setVisibility(View.VISIBLE);
+
                 Toast.makeText(GetWifiActivity.this, "Saved!", Toast.LENGTH_LONG).show();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
