@@ -69,13 +69,14 @@ public class GetWifiActivity extends ActionBarActivity {
             mScanResultList = mWifiManager.getScanResults();
             String wifiList ="";
             for (int i =0; i < mScanResultList.size(); i++) {
-                wifiList+=mScanResultList.get(i).BSSID+ " ";
+                wifiList+=mScanResultList.get(i).SSID+ " ";
+                wifiList+=mScanResultList.get(i).BSSID+ ";";
             }
             Log.d("Wifilist: ", wifiList);
             String root = Environment.getExternalStorageDirectory().toString();
             File myDir = new File(root + "/saved_stations");
             myDir.mkdirs();
-            String fname = mStationName +".jpg";
+            String fname = mStationName +".txt";
             File file = new File (myDir, fname);
             try {
             FileWriter writer = new FileWriter(file);
