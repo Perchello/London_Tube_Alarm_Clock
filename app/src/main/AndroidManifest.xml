@@ -33,12 +33,6 @@
                 android:value="perchello.londontubealarmclock.MainActivity"
                 />
         </activity>
-        <receiver android:name="AlarmReceiver" >
-            <intent-filter>
-                <action android:name="android.intent.action.PHONE_STATE" >
-                </action>
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>
