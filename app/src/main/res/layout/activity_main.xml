@@ -34,4 +34,20 @@
         android:id="@+id/getWifiButton"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cancel Alarm"
+        android:id="@+id/cancelAlarmButton"
+        android:layout_above="@+id/getWifiButton"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set Alarm"
+        android:id="@+id/setAlarmButton"
+        android:layout_above="@+id/cancelAlarmButton"
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

@@ -33,6 +33,10 @@
                 android:value="perchello.londontubealarmclock.MainActivity"
                 />
         </activity>
+        <service android:name=".WifiAlarmService"
+                 android:enabled="true" />
+
+        <receiver android:name=".WifiReceiver"/>
     </application>
 
 </manifest>

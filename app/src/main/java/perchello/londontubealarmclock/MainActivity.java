@@ -1,11 +1,14 @@
 package perchello.londontubealarmclock;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,12 +16,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.Calendar;
 import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
     private List<ScanResult> mScanResultList;
+    PendingIntent mPendingIntent;
     public TextView mWifiTextView;
+    public Button mSetAlarmButton;
+    public Button mCancelAlarmButton;
+
     public WifiManager mWifiManager;
     public WifiScanReceiver mWifiReceiver;
     public Button mGetNewWifiButton;
@@ -72,11 +80,35 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setStationNames();
+        //setStationNames();
         mWifiTextView = (TextView) findViewById(R.id.wifiTextView);
-        mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        mWifiReceiver = new WifiScanReceiver();
-        registerReceiver(mWifiReceiver, new IntentFilter(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        //mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        //mWifiReceiver = new WifiScanReceiver();
+        //registerReceiver(mWifiReceiver, new IntentFilter(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        mSetAlarmButton = (Button) findViewById(R.id.setAlarmButton);
+        mSetAlarmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent(MainActivity.this, WifiReceiver.class);
+                myIntent.putExtra("1", "test");
+                myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mPendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, myIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime(), 1000, mPendingIntent);
+            }
+        });
+
+
+        mCancelAlarmButton = (Button) findViewById(R.id.cancelAlarmButton);
+        mCancelAlarmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, WifiReceiver.class);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, 0);
+                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                alarmManager.cancel(pendingIntent);
+            }
+        });
         mGetNewWifiButton = (Button) findViewById(R.id.getWifiButton);
         mGetNewWifiButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,7 +118,7 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        mWifiManager.startScan();
+        //mWifiManager.startScan();
 
     }
 
@@ -94,14 +126,14 @@ public class MainActivity extends ActionBarActivity {
     public void onPause() {
         super.onPause();
 
-        unregisterReceiver(mWifiReceiver);
+        //unregisterReceiver(mWifiReceiver);
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        registerReceiver(mWifiReceiver, new IntentFilter(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        //registerReceiver(mWifiReceiver, new IntentFilter(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
     }
     class WifiScanReceiver extends BroadcastReceiver {
