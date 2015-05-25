@@ -50,6 +50,7 @@ public class GetWifiActivity extends ActionBarActivity {
             public void onClick(View v) {
                 if (mStationEditText.getText().length() != 0) {
                     Log.d("Passed click: ", "yes");
+                    mGetNewWifiButton.setVisibility(View.INVISIBLE);
                     mStationName = mStationEditText.getText().toString();
                     mWifiManager.startScan();
                     registerReceiver(mWifiReceiver, new IntentFilter(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -84,6 +85,7 @@ public class GetWifiActivity extends ActionBarActivity {
             writer.flush();
 
                 writer.close();
+                mGetNewWifiButton.setVisibility(View.VISIBLE);
                 Toast.makeText(GetWifiActivity.this, "Saved!", Toast.LENGTH_LONG).show();
             } catch (IOException e) {
                 e.printStackTrace();
