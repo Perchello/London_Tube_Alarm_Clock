@@ -1,5 +1,6 @@
 package perchello.londontubealarmclock;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -11,10 +12,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -28,50 +33,11 @@ public class WifiAlarmService extends Service {
     public WifiManager mWifiManager;
     public WifiScanReceiver mWifiReceiver;
     public String mCurrentStation;
+    public Boolean mRepeatAlarm;
+    public String mDestinationStation;
+    public String mDestinationMac;
 
-    public String mFincheleyCentral;
-    public String mEastFinchley;
-    public String mHighgate;
-    public String mArchway;
-    public String mTufnellPark;
-    public String mCamdenTown;
-    public String mEuston;
-    public String mKentishTown;
-    public String mKingsCross;
-    public String mAngel;
-    public String mOldStreet;
-    public String mMoorgate;
-    public String mBank;
-    public String mLondonBridge;
-    public String mBermondsey;
-    public String mCanadaWater;
-    public String mCanaryWharf;
-    public String mNorthGreenwich;
-    public String mCanningTown;
-    public String mAndrewOffice;
 
-    public String mCharringCross;
-    public String mEmbankment;
-    public String mGoodgeStreet;
-    public String mLeicesterSquare;
-    public String mMorningtonCrescent;
-    public String mSouthwarkStation;
-    public String mWarrenStreet;
-    public String mWaterloo;
-
-    public String mAldgateEast;
-    public String mBlackFriars;
-    public String mWestminster;
-    public String mWestKensigton;
-    public String mWestBrompton;
-    public String mVictoria;
-    public String mTowerHill;
-    public String mTemple;
-    public String mStJamesPark;
-    public String mSouthKensington;
-    public String mSloaneSquare;
-    public String mMonument;
-    public String mMansionHouse;
 
 
     @Override
@@ -82,39 +48,76 @@ public class WifiAlarmService extends Service {
     @Override
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
-        Log.d("WifiAlarm Service :", "OnStart");
-        mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        mWifiReceiver = new WifiScanReceiver();
-        mCurrentStation ="";
-        registerReceiver(mWifiReceiver, new IntentFilter(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        mWifiManager.startScan();
+        Bundle extras = intent.getExtras();
+        mDestinationStation= extras.getString("stationName");
+        mDestinationMac = extras.getString("mac");
+
+
+        Log.d("WifiAlarmService :", "Station name is " + mDestinationStation + " and mac is " + mDestinationMac);
+            mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+            mWifiReceiver = new WifiScanReceiver();
+            mCurrentStation = "";
+            mRepeatAlarm = true;
+            registerReceiver(mWifiReceiver, new IntentFilter(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+            mWifiManager.startScan();
 
     }
+
 
     class WifiScanReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             mScanResultList = mWifiManager.getScanResults();
-
             for (int i =0; i < mScanResultList.size(); i++) {
-                Log.d("Network name is :" + mScanResultList.get(i).SSID.toString().toLowerCase() + " :", mScanResultList.get(i).BSSID.toString().toLowerCase());
+                Log.d("I am in onReceive Loop", "");
 
-                if (mScanResultList.get (i).BSSID.toString().toLowerCase().contains("00:62:2c:72:9c:f4")){
-                    if (!mCurrentStation.equals("George Home")){
-                        mCurrentStation="George Home";
-                        Toast.makeText(WifiAlarmService.this, mCurrentStation, Toast.LENGTH_LONG).show();
-                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-                        r.play();
+                if (mDestinationMac.contains (mScanResultList.get (i).BSSID.toString().toLowerCase())){
+                    mCurrentStation=mDestinationStation;
 
-                    }
-
+                    createNotification();
+                    mRepeatAlarm = false;
+                    unregisterReceiver(mWifiReceiver);
                     i = mScanResultList.size();
                 }
+
+            }
+            if (mRepeatAlarm) {
+                unregisterReceiver(mWifiReceiver);
+                startAlarmManager();
             }
 
         }
+
+        private void createNotification() {
+            Intent intent1 = new Intent(WifiAlarmService.this, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(WifiAlarmService.this, 0, intent1, 0);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            Notification n = new Notification.Builder(WifiAlarmService.this)
+                    .setContentTitle("You arrived to " + mDestinationStation)
+                    .setContentText(mCurrentStation)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
+                    .getNotification();
+
+            notificationManager.notify(0, n);
+        }
+
+
+        public void startAlarmManager() {
+
+            Intent myIntent = new Intent(WifiAlarmService.this, WifiReceiver.class);
+            myIntent.putExtra("stationName", mDestinationStation);
+            myIntent.putExtra("mac", mDestinationMac);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(WifiAlarmService.this, 0, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            alarmManager.set(AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime() + 20000, pendingIntent);
+        }
+
+
     }
+
 
 }
