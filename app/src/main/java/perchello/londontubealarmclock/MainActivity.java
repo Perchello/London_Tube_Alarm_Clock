@@ -54,11 +54,12 @@ public class MainActivity extends ActionBarActivity {
                 }
                 Intent myIntent = new Intent(MainActivity.this, WifiReceiver.class);
                 Stations stations = new Stations();
+                Stations.mStatus = "true";
 
                 myIntent.putExtra("stationName", "Canning Town");
                 myIntent.putExtra("mac", stations.getMac(0));
                 myIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mPendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, myIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                mPendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime(), mPendingIntent);
             }
@@ -69,6 +70,8 @@ public class MainActivity extends ActionBarActivity {
         mCancelAlarmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Stations.mStatus = "false";
+
                 if (mIsWifiReceiverRegistered){
                     unregisterReceiver(mWifiReceiver);
                     mIsWifiReceiverRegistered = false;

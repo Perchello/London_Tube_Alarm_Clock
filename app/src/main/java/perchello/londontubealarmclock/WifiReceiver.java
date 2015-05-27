@@ -14,9 +14,8 @@ public class WifiReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Bundle extras = intent.getExtras();
-        String stationName = extras.getString("stationName");
-        String mac = extras.getString("mac");
+                String stationName = intent.getStringExtra("stationName");
+        String mac = intent.getStringExtra("mac");
         Log.d("WifiReceiver : ", "Station name is " + stationName + " and mac is " + mac);
         Intent service = new Intent(context, WifiAlarmService.class);
         service.putExtra("stationName", stationName);

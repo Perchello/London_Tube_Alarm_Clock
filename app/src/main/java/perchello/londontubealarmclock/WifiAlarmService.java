@@ -48,18 +48,26 @@ public class WifiAlarmService extends Service {
     @Override
     public void onStart(Intent intent, int startId) {
         super.onStart(intent, startId);
-        Bundle extras = intent.getExtras();
-        mDestinationStation= extras.getString("stationName");
-        mDestinationMac = extras.getString("mac");
 
+        if (intent == null) {
+            Log.d ("WifiAlarmService: ", "Intent is null, terminating");
+        } else {
+            mDestinationStation = intent.getStringExtra("stationName");
+            mDestinationMac = intent.getStringExtra("mac");
 
-        Log.d("WifiAlarmService :", "Station name is " + mDestinationStation + " and mac is " + mDestinationMac);
-            mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
             mWifiReceiver = new WifiScanReceiver();
+
+            Log.d("Status is ", Stations.mStatus);
+
+
+            Log.d("WifiAlarmService :", "Station name is " + mDestinationStation + " and mac is " + mDestinationMac);
+            mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
             mCurrentStation = "";
             mRepeatAlarm = true;
             registerReceiver(mWifiReceiver, new IntentFilter(mWifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
             mWifiManager.startScan();
+        }
+
 
     }
 
@@ -82,9 +90,11 @@ public class WifiAlarmService extends Service {
                 }
 
             }
-            if (mRepeatAlarm) {
+            if (mRepeatAlarm ) {
                 unregisterReceiver(mWifiReceiver);
-                startAlarmManager();
+                if (Stations.mStatus.equals("true")) {
+                    startAlarmManager();
+                }
             }
 
         }
@@ -99,7 +109,7 @@ public class WifiAlarmService extends Service {
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)
-                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
+                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE))
                     .getNotification();
 
             notificationManager.notify(0, n);
@@ -113,7 +123,7 @@ public class WifiAlarmService extends Service {
             myIntent.putExtra("mac", mDestinationMac);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(WifiAlarmService.this, 0, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            alarmManager.set(AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime() + 20000, pendingIntent);
+            alarmManager.set(AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime(), pendingIntent);
         }
 
 
